@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Controller</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        h1 { margin-top: 20px; }
+        #distance { font-size: 1.5rem; margin: 20px; }
+        .controls { margin-top: 20px; }
+        button { margin: 5px; padding: 10px 20px; font-size: 1rem; }
+        img { margin-top: 20px; border: 2px solid #444; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Robot Controller with Camera and LiDAR</h1>
+    <div id="distance">Distance: Loading...</div>
+    <div class="controls">
+        <button onclick="controlRobot('forward')">Forward</button>
+        <button onclick="controlRobot('left')">Left</button>
+        <button onclick="controlRobot('right')">Right</button>
+        <button onclick="controlRobot('backward')">Backward</button>
+        <button onclick="controlRobot('stop')">Stop</button>
+    </div>
+    <img src="/video_feed" alt="Camera Feed">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        socket.on("update_distance", (data) => {
+            document.getElementById("distance").textContent = data.distance;
+        });
+
+        function controlRobot(direction) {
+            fetch("/control_motor", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ direction }),
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(err => alert("Error controlling robot: " + err));
+        }
+    </script>
+</body>
+</html>
