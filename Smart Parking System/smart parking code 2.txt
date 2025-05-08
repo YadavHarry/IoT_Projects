@@ -1,0 +1,64 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// IR sensor pins
+const int IR1 = 11;
+const int IR2 = 10;
+const int IR3 = 9;
+const int IR4 = 8;
+
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Adjust address if needed
+
+void setup() {
+  lcd.init();
+  lcd.backlight();
+
+  pinMode(IR1, INPUT);
+  pinMode(IR2, INPUT);
+  pinMode(IR3, INPUT);
+  pinMode(IR4, INPUT);
+
+  lcd.setCursor(0, 0);
+  lcd.print(" Smart Parking ");
+  lcd.setCursor(0, 1);
+  lcd.print("   Initializing");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  int s1 = digitalRead(IR1);
+  int s2 = digitalRead(IR2);
+  int s3 = digitalRead(IR3);
+  int s4 = digitalRead(IR4);
+
+  // Invert logic if sensors are active LOW
+  bool car1 = (s1 == LOW);
+  bool car2 = (s2 == LOW);
+  bool car3 = (s3 == LOW);
+  bool car4 = (s4 == LOW);
+
+  int occupied = car1 + car2 + car3 + car4;
+
+  if (occupied == 4) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(" Parking is Full!");
+    lcd.setCursor(0, 1);
+    lcd.print("   Please Wait   ");
+  } else {
+    lcd.setCursor(0, 0);
+    lcd.print("Car1:");
+    lcd.print(car1 ? "O" : "E");
+    lcd.print("   Car2:");
+    lcd.print(car2 ? "O" : "E");
+
+    lcd.setCursor(0, 1);
+    lcd.print("Car3:");
+    lcd.print(car3 ? "O" : "E");
+    lcd.print("   Car4:");
+    lcd.print(car4 ? "O" : "E");
+  }
+
+  delay(500);
+}
